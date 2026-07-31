@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blueprint — 120B Frontier-Class Model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#12172B; --panel:#1B2142; --panel-2:#212852;
+    --turmeric:#E8A33D; --peacock:#1F9E96; --sindoor:#C1443C;
+    --alabaster:#F4EFE3; --muted:#8892B0; --line: rgba(244,239,227,0.12);
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0; background:var(--ink); color:var(--alabaster); font-family:'IBM Plex Sans',sans-serif; line-height:1.6;}
+  h1,h2,h3{font-family:'Fraunces',serif; font-weight:600; margin:0 0 .4em 0; letter-spacing:-0.01em;}
+  p{color:#D8D4C6; margin:.6em 0;}
+  code{font-family:'IBM Plex Mono',monospace; color:var(--turmeric);}
+  .shell{display:grid; grid-template-columns:230px 1fr; max-width:1280px; margin:0 auto;}
+  nav.toc{position:sticky; top:0; align-self:start; height:100vh; overflow-y:auto; padding:34px 16px 34px 26px; border-right:1px solid var(--line);}
+  nav.toc .brand{font-family:'Fraunces',serif; font-size:17px; color:var(--alabaster);}
+  nav.toc .brand small{display:block; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-top:4px;}
+  nav.toc ol{list-style:none; margin:22px 0 0 0; padding:0; counter-reset:tocnum;}
+  nav.toc li{counter-increment:tocnum; margin-bottom:1px;}
+  nav.toc a{display:flex; gap:9px; text-decoration:none; color:var(--muted); font-size:12.5px; padding:6px 7px; border-radius:6px;}
+  nav.toc a:hover{background:var(--panel); color:var(--alabaster);}
+  nav.toc a::before{content: counter(tocnum, decimal-leading-zero); font-family:'IBM Plex Mono',monospace; color:var(--peacock); font-size:11px;}
+  main{padding:0 0 90px 0;}
+  .eyebrow{font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.14em; text-transform:uppercase; color:var(--turmeric); display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+  .eyebrow::before{content:""; width:22px; height:1px; background:var(--turmeric);}
+  .hero{padding:70px 50px 40px 50px; border-bottom:1px solid var(--line);}
+  .hero .kicker{font-family:'IBM Plex Mono',monospace; color:var(--peacock); font-size:12.5px; letter-spacing:.16em; text-transform:uppercase; margin-bottom:16px;}
+  .hero h1{font-size:clamp(28px,3.6vw,44px); max-width:20ch; line-height:1.1;}
+  .hero h1 em{font-style:normal; color:var(--turmeric);}
+  .hero p.lede{max-width:68ch; font-size:15.5px; color:#C9C4B4; margin-top:16px;}
+  .stat-strip{display:grid; grid-template-columns:repeat(6,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; margin-top:36px;}
+  .stat{background:var(--panel); padding:14px 12px;}
+  .stat .n{font-family:'Fraunces',serif; font-size:18px; color:var(--turmeric);}
+  .stat .l{font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-top:3px;}
+  section.block{padding:50px 50px; border-bottom:1px solid var(--line); scroll-margin-top:16px;}
+  section.block h2{font-size:24px; max-width:36ch;}
+  section.block > p.intro{max-width:76ch; font-size:14.5px;}
+  .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:24px;}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px;}
+  .card h3{font-size:13.5px; color:var(--peacock); font-family:'IBM Plex Mono',monospace; text-transform:uppercase; letter-spacing:.03em; margin-bottom:8px;}
+  .card p{font-size:13.5px;}
+  @media (max-width:900px){.shell{grid-template-columns:1fr;} nav.toc{display:none;} .hero,section.block{padding:40px 20px;} .stat-strip{grid-template-columns:repeat(3,1fr);} .grid-2{grid-template-columns:1fr;}}
+
+  table.datasheet{margin-top:20px; width:100%; border-collapse:collapse; font-size:13px;}
+  table.datasheet th{text-align:left; font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); padding:9px 12px; border-bottom:1px solid var(--line);}
+  table.datasheet td{padding:9px 12px; border-bottom:1px solid var(--line); color:#D8D4C6; vertical-align:top;}
+  table.datasheet td.num{font-family:'IBM Plex Mono',monospace; color:var(--turmeric); white-space:nowrap;}
+
+  .pipeline{counter-reset:step; margin-top:22px;}
+  .pipeline .step{counter-increment:step; display:grid; grid-template-columns:50px 1fr; gap:16px; padding:15px 0; border-top:1px solid var(--line);}
+  .pipeline .step:last-child{border-bottom:1px solid var(--line);}
+  .pipeline .step::before{content: counter(step, decimal-leading-zero); font-family:'Fraunces',serif; font-size:20px; color:var(--turmeric);}
+  .pipeline h4{margin:0 0 5px 0; font-weight:600; font-size:14px; color:var(--alabaster);}
+  .pipeline p{font-size:13.5px; margin:0;}
+
+  blockquote.note{border-left:3px solid var(--sindoor); background:rgba(193,68,60,.08); padding:13px 16px; margin:20px 0 0 0; border-radius:0 6px 6px 0; font-size:13px; color:#E9C9C4;}
+  blockquote.note b{color:var(--sindoor);}
+  blockquote.ok{border-left:3px solid var(--peacock); background:rgba(31,158,150,.08); padding:13px 16px; margin:20px 0 0 0; border-radius:0 6px 6px 0; font-size:13px; color:#BFE8E4;}
+  blockquote.ok b{color:var(--peacock);}
+  blockquote.warn{border-left:3px solid var(--turmeric); background:rgba(232,163,61,.08); padding:13px 16px; margin:20px 0 0 0; border-radius:0 6px 6px 0; font-size:13px; color:#F0DDBB;}
+  blockquote.warn b{color:var(--turmeric);}
+
+  .formula{background:var(--panel-2); border:1px dashed var(--peacock); border-radius:var(--radius); padding:18px 20px; margin-top:20px; font-family:'IBM Plex Mono',monospace; font-size:13.5px; color:var(--alabaster);}
+  .formula .lab{font-size:10.5px; color:var(--peacock); text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px;}
+
+  .timeline{display:flex; margin-top:20px; border-radius:8px; overflow:hidden; border:1px solid var(--line); height:56px;}
+  .timeline .seg{display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink); font-weight:600; text-align:center; padding:0 4px;}
+
+  .stackbar{display:flex; width:100%; height:36px; border-radius:8px; overflow:hidden; margin-top:16px; border:1px solid var(--line);}
+  .stackbar .seg{height:100%;}
+  .legend{display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:14px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--muted);}
+  .legend .li{display:flex; align-items:center; gap:7px;}
+  .legend .sw{width:9px; height:9px; border-radius:2px;}
+
+  footer{padding:40px 50px 60px 50px; color:var(--muted); font-size:11.5px; font-family:'IBM Plex Mono',monospace;}
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="toc">
+    <div class="brand">120B Blueprint<small>Frontier-class model design</small></div>
+    <ol>
+      <li><a href="#arch">Architecture</a></li>
+      <li><a href="#data">Pretraining data</a></li>
+      <li><a href="#clean">Cleaning at scale</a></li>
+      <li><a href="#tok">Tokenizer</a></li>
+      <li><a href="#curriculum">Training curriculum</a></li>
+      <li><a href="#budget">Compute budget</a></li>
+      <li><a href="#optim">Loss &amp; optimization</a></li>
+      <li><a href="#infra">Agents &amp; tooling infra</a></li>
+      <li><a href="#hardware">Hardware</a></li>
+      <li><a href="#bench">Benchmark alignment</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div class="kicker">Architecture &amp; training design · engineering blueprint</div>
+      <h1>Building a 120B model that's <em>competitive</em>, not just large</h1>
+      <p class="lede">A full design pass: architecture, data mixture, cleaning at scale, tokenizer sizing, a five-stage training curriculum, the compute-budget math for your requested mixture, optimization/stability technique, the tooling needed for agentic capability, and the hardware to actually run it. Recommendations are grounded in publicly documented practice (Llama 3, DeepSeek-V3, Qwen3, Gemma) — not insider knowledge of any specific closed lab's recipe.</p>
+      <div class="stat-strip">
+        <div class="stat"><div class="n">120B / ~20B</div><div class="l">Total / active params (MoE)</div></div>
+        <div class="stat"><div class="n">30T</div><div class="l">Pretrain tokens</div></div>
+        <div class="stat"><div class="n">230K</div><div class="l">Vocab size</div></div>
+        <div class="stat"><div class="n">128K→1M</div><div class="l">Context (trained→extended)</div></div>
+        <div class="stat"><div class="n">3.6×10²⁴</div><div class="l">Training FLOPs</div></div>
+        <div class="stat"><div class="n">~12 days</div><div class="l">On 10K H100-class GPUs</div></div>
+      </div>
+    </section>
+
+    <!-- ARCHITECTURE -->
+    <section class="block" id="arch">
+      <div class="eyebrow">01 · Architecture</div>
+      <h2>Mixture-of-Experts, not dense — the single biggest lever at this scale</h2>
+      <p class="intro">At 120B "total size," the first real fork in the road is dense vs. sparse (MoE). Given your mixture spans code, agentic/tool-use, reasoning, long-context, and multilingual — a genuinely broad capability target — MoE is the right call: it lets you train on far more tokens for the same compute, which matters more for breadth of capability than raw parameter count does.</p>
+      <table class="datasheet">
+        <thead><tr><th>Component</th><th>Recommendation</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Overall shape</td><td>MoE, 120B total / ~20B active per token (6× sparsity)</td><td>~6× cheaper training FLOPs per token than a 120B dense model at equal quality-per-active-param; moderate sparsity (vs. DeepSeek-V3's ~18×) trades some efficiency for a smaller quality gap vs. dense</td></tr>
+          <tr><td>Experts</td><td>128 routed experts, top-8 active + 2 always-on shared experts</td><td>Shared experts (DeepSeek-V3 pattern) capture common cross-domain features so routed experts can specialize more cleanly</td></tr>
+          <tr><td>Load balancing</td><td>Auxiliary-loss-free balancing via a learned per-expert bias term, not a large aux-loss coefficient</td><td>Avoids the classic MoE failure mode where a heavy balancing loss actively fights the main training objective</td></tr>
+          <tr><td>Attention</td><td>Grouped-Query Attention, 48 query heads / 8 KV heads, head dim 128</td><td>Cuts KV-cache size ~6× vs. full multi-head attention — critical for the long-context targets in your mixture</td></tr>
+          <tr><td>Positional encoding</td><td>RoPE, base θ raised during the dedicated long-context stage (Sec. 5), YaRN-style scaling for inference-time extension beyond the trained length</td><td>Trains stably at a moderate context length, then extends further at inference without full retraining</td></tr>
+          <tr><td>Normalization</td><td>RMSNorm, pre-norm, QK-norm on attention logits</td><td>QK-norm specifically prevents attention-logit blowups, a common source of loss spikes at this scale</td></tr>
+          <tr><td>Activation</td><td>SwiGLU</td><td>Standard choice across current open frontier-class models; consistently outperforms ReLU/GeLU variants at scale</td></tr>
+          <tr><td>Depth × width</td><td>~80 layers, hidden size 6,144</td><td>Deeper-and-narrower generally reasons better per-FLOP than shallow-and-wide at this parameter class</td></tr>
+          <tr><td>Auxiliary objective</td><td>Multi-token prediction (predict token t+2 as well as t+1) via a lightweight extra head</td><td>Meaningfully improves sample efficiency and downstream coding/reasoning quality per token trained (DeepSeek-V3 finding), can be dropped at inference</td></tr>
+          <tr><td>Context length</td><td>Trained natively to 128K, extended to ~1M via YaRN + a dedicated long-context stage</td><td>Matches how current frontier-class models handle long-context — native training up to a point, extension technique beyond it</td></tr>
+          <tr><td>Vocabulary</td><td>~230,000 tokens (see Section 4)</td><td>Sized for the actual mixture — code, math, agentic syntax, and multiple Indic scripts all need dedicated budget, not a shared undersized vocab</td></tr>
+        </tbody>
+      </table>
+      <blockquote class="note"><b>MoE's real cost isn't compute, it's communication.</b> Expert parallelism requires all-to-all GPU communication on every forward/backward pass. This is the architecture decision with the biggest hardware/networking implication — see Section 9.</blockquote>
+    </section>
+
+    <!-- DATA -->
+    <section class="block" id="data">
+      <div class="eyebrow">02 · Pretraining data</div>
+      <h2>Sourcing each of your seven mixture components</h2>
+      <p class="intro">Every bucket needs a different sourcing strategy — web-scale crawling doesn't work for verified reasoning traces, and verified-execution filtering doesn't apply to general web text.</p>
+      <table class="datasheet">
+        <thead><tr><th>Bucket</th><th>Primary sources</th><th>Sourcing method</th></tr></thead>
+        <tbody>
+          <tr><td>General web</td><td>Filtered CommonCrawl (FineWeb/Dolma-style pipelines), curated encyclopedic + reference sources</td><td>Broad crawl + quality/toxicity/dedup filtering (Section 3)</td></tr>
+          <tr><td>Code</td><td>Permissively-licensed GitHub (The Stack v2-style), PRs/issues/commit history, notebooks</td><td>License filtering, near-dedup across forks, syntax-validity check</td></tr>
+          <tr><td>STEM / math</td><td>arXiv, OpenWebMath, textbooks, olympiad archives, curated problem sets</td><td>Domain-specific crawls + LaTeX-preserving cleaning (Step 9)</td></tr>
+          <tr><td>Reasoning traces</td><td>Long chain-of-thought solutions, worked textbook proofs, distilled traces from a stronger verifier/teacher model, self-generated-and-verified traces</td><td><b style="color:var(--alabaster)">Verified, not scraped</b> — kept only if the final answer checks out against a ground truth or executes correctly</td></tr>
+          <tr><td>Agentic &amp; tool-use</td><td>API docs, CLI transcripts, synthetic ReAct-style trajectories generated against real sandboxed tools</td><td>Kept only if the trajectory actually completes the task in a sandbox (Section 8) — unverified synthetic agent data is often worse than none</td></tr>
+          <tr><td>Long-context</td><td>Full books, long code repositories (whole-repo context), multi-document concatenations, long real agent sessions</td><td>Selected by document length from the other buckets, not an independent content source — see Section 5</td></tr>
+          <tr><td>Indic languages</td><td>IndicCorp v2 / Sangraha-style corpora, Wikipedia dumps per language, Samanantar/BPCC parallel data, native-language news and government text</td><td>Per-language collection + native-speaker sourcing where possible, not translation-only (see the earlier India-first blueprint for the full source list)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- CLEANING -->
+    <section class="block" id="clean">
+      <div class="eyebrow">03 · Cleaning pipeline, at scale</div>
+      <h2>Same 10-step pipeline, now distributed</h2>
+      <p class="intro">The 10-step pipeline (normalization → language ID → dedup → quality/Gopher/C4 → toxicity → PII → decontamination → code secrets → LaTeX-aware → human audit) built earlier in this conversation applies directly here. At 30T-token scale, two things change:</p>
+      <div class="pipeline">
+        <div class="step"><div><h4>Distributed execution is mandatory</h4><p>A single-machine multiprocessing pool (the earlier `--workers` approach) doesn't scale to petabytes. Run the same per-line logic on a distributed framework (Ray or Spark) across a CPU cluster, with the corpus sharded so dedup and language-ID stay correct across shard boundaries.</p></div></div>
+        <div class="step"><div><h4>MinHash/LSH needs a distributed index</h4><p>A single-process LSH index (as built earlier) can't hold a 30T-token corpus's shingle sets in memory. Use a distributed LSH implementation (or bucket-then-dedup: hash-partition by MinHash band, dedup within each partition, merge) to keep the corpus-wide near-dup guarantee at scale.</p></div></div>
+        <div class="step"><div><h4>Decontamination against a real benchmark suite</h4><p>Step 7, left empty in earlier test runs, needs to actually run here against the full evaluation suite you'll be measured on: MMLU-Pro, GPQA, HumanEval/SWE-bench, MATH/AIME, BFCL, AgentBench/GAIA, RULER, IndicXTREME/MILU. Skipping this is the single most common way a benchmark score turns out to be memorization, not capability.</p></div></div>
+      </div>
+    </section>
+
+    <!-- TOKENIZER -->
+    <section class="block" id="tok">
+      <div class="eyebrow">04 · Tokenizer</div>
+      <h2>~230,000 tokens — sized for this specific mixture, not a generic default</h2>
+      <p class="intro">This follows the same fertility-driven sizing method as the earlier tokenizer design: keep adding vocabulary to a domain until its fertility (tokens/word) stops improving, rather than allocating proportionally to raw corpus share.</p>
+      <table class="datasheet">
+        <thead><tr><th>Domain</th><th class="num">Target fertility</th><th>Why it needs dedicated budget</th></tr></thead>
+        <tbody>
+          <tr><td>English / general web</td><td class="num">1.20×</td><td>Baseline — largest single content source</td></tr>
+          <tr><td>Code (15+ languages)</td><td class="num">1.15×</td><td>Keywords and common identifiers as single tokens directly improve completion quality and reduce sequence length in repo-scale context</td></tr>
+          <tr><td>Math / scientific notation</td><td class="num">1.15×</td><td>Single-digit tokenization is specifically important for arithmetic reliability; LaTeX commands as whole tokens</td></tr>
+          <tr><td>Agentic / structural tokens</td><td class="num">n/a (structural)</td><td>JSON keys, function-call schema, tool-call delimiters as single tokens — reduces the token overhead of every tool call, which compounds heavily in long agentic sessions</td></tr>
+          <tr><td>Reasoning-trace formatting</td><td class="num">1.20×</td><td>Long chain-of-thought text is mostly natural language, but step-marker/notation tokens benefit from dedicated merges given how much of the token budget reasoning traces consume at inference</td></tr>
+          <tr><td>Indic languages (pooled, ~18 languages)</td><td class="num">1.35–1.60×</td><td>Same rationale as the dedicated India-first design — see the earlier tokenizer report for the full per-language breakdown</td></tr>
+        </tbody>
+      </table>
+      <blockquote class="warn"><b>Verified by the run report earlier in this conversation —</b> a generic, undersized, single-script-biased vocabulary produced 14.87 tokens/word on real Indic text against a ~1.4× target. That failure mode is exactly what a properly-sized, domain-aware vocabulary here is meant to prevent.</blockquote>
+    </section>
+
+    <!-- CURRICULUM -->
+    <section class="block" id="curriculum">
+      <div class="eyebrow">05 · Training curriculum</div>
+      <h2>Five stages, one learning-rate schedule (Warmup–Stable–Decay)</h2>
+      <p class="intro">A single flat pretraining run wastes the fact that not all data is equally valuable at every point in training. A staged curriculum lets you control WHEN the model sees what, on top of a WSD (warmup–stable–decay) learning-rate schedule rather than a fixed cosine curve — WSD lets you extend the "stable" phase without redesigning the whole schedule if you decide to train longer.</p>
+      <div class="timeline">
+        <div class="seg" style="width:2%; background:#8892B0;">Seed</div>
+        <div class="seg" style="width:78%; background:#1F9E96;">General — 78%</div>
+        <div class="seg" style="width:10%; background:#E8A33D;">Reasoning</div>
+        <div class="seg" style="width:6%; background:#C1443C;">Long-ctx</div>
+        <div class="seg" style="width:4%; background:#57DED3; color:#12172B;">Anneal</div>
+      </div>
+      <table class="datasheet" style="margin-top:18px;">
+        <thead><tr><th>Stage</th><th class="num">Share</th><th class="num">Tokens</th><th>Purpose &amp; LR behavior</th></tr></thead>
+        <tbody>
+          <tr><td><b style="color:var(--alabaster)">Seed</b></td><td class="num">2%</td><td class="num">0.6T</td><td>Small-scale warm-up on the cleanest, most-deduplicated slice of the mixture — verifies the data pipeline and training infra are actually correct before committing the full compute budget. LR ramps 0 → peak.</td></tr>
+          <tr><td><b style="color:var(--alabaster)">General</b></td><td class="num">78%</td><td class="num">23.4T</td><td>Bulk of training on the full mixture (Section 6's proportions) at the stable, constant peak LR. Builds broad world knowledge, language, and code capability.</td></tr>
+          <tr><td><b style="color:var(--alabaster)">Reasoning</b></td><td class="num">10%</td><td class="num">3.0T</td><td>Continued training with STEM/math and reasoning-traces oversampled well above their Section 6 share. Still stable LR. Builds latent multi-step reasoning capability before any RL post-training touches it.</td></tr>
+          <tr><td><b style="color:var(--alabaster)">Long-context</b></td><td class="num">6%</td><td class="num">1.8T</td><td>RoPE base θ increased; trains on long documents, whole repos, and long agent sessions drawn from the other buckets. Progressive length curriculum (e.g. 32K→64K→128K) rather than jumping straight to the target length.</td></tr>
+          <tr><td><b style="color:var(--alabaster)">Anneal</b></td><td class="num">4%</td><td class="num">1.2T</td><td>LR decays to ~0 (the "D" in WSD) on the highest-quality, most-curated blend across all buckets. Llama 3 and MiniCPM both report a disproportionate share of final capability crystallizing here — worth the dedicated budget.</td></tr>
+        </tbody>
+      </table>
+      <blockquote class="ok"><b>Not double-counted —</b> the stage table above and the domain-mixture table in Section 6 are two different cuts of the same 30T tokens. Every stage draws from the domain mixture, just with different sampling weights — the Reasoning stage, for instance, oversamples STEM/Math and Reasoning-traces well above their overall 14%/12% share.</blockquote>
+    </section>
+
+    <!-- BUDGET -->
+    <section class="block" id="budget">
+      <div class="eyebrow">06 · Compute budget for your mixture</div>
+      <h2>The formula, worked through with real numbers</h2>
+      <div class="formula">
+        <div class="lab">Training compute (FLOPs)</div>
+        C ≈ 6 × N_active × D
+        <div style="color:var(--muted); font-size:12px; margin-top:8px;">N_active = active parameters per token (NOT total params for an MoE model) · D = total training tokens</div>
+      </div>
+      <p class="intro" style="margin-top:18px;">This is the number of tokens (D) you can afford is a function of your compute budget and N_active — for MoE, using active params instead of total params is the whole point: it's why MoE lets you train on dramatically more data for the same FLOPs.</p>
+      <table class="datasheet">
+        <thead><tr><th>Variant</th><th class="num">N (used in formula)</th><th class="num">D (tokens)</th><th class="num">Total FLOPs</th></tr></thead>
+        <tbody>
+          <tr><td>MoE (recommended) — 120B total / 20B active</td><td class="num">20B</td><td class="num">30T</td><td class="num">3.6 × 10²⁴</td></tr>
+          <tr><td>Dense equivalent — 120B active</td><td class="num">120B</td><td class="num">30T</td><td class="num">2.16 × 10²⁵ (6× more)</td></tr>
+        </tbody>
+      </table>
+      <blockquote class="ok"><b>The MoE payoff in plain terms —</b> for the identical 3.6 × 10²⁴ FLOP budget, a dense 120B model could only train on ~5T tokens instead of 30T. Given a broad seven-domain mixture, more diverse tokens at fixed compute generally beats more parameters at fixed tokens.</blockquote>
+
+      <div class="viz-title" style="margin-top:34px;"><div class="eyebrow" style="margin-bottom:4px;">30T-token allocation across your seven buckets</div></div>
+      <div class="stackbar" id="mixbar"></div>
+      <div class="legend" id="mixlegend"></div>
+      <table class="datasheet" style="margin-top:18px;">
+        <thead><tr><th>Bucket</th><th class="num">Share</th><th class="num">Tokens</th><th>Why this weight</th></tr></thead>
+        <tbody>
+          <tr><td>General web</td><td class="num">28%</td><td class="num">8.4T</td><td>Still the backbone for broad world knowledge and fluent general language — every frontier-class model's largest single bucket</td></tr>
+          <tr><td>Code</td><td class="num">20%</td><td class="num">6.0T</td><td>Named as an explicit priority; code also measurably improves general reasoning ability, not just coding benchmarks</td></tr>
+          <tr><td>STEM / math</td><td class="num">14%</td><td class="num">4.2T</td><td>Direct driver of quantitative-reasoning benchmarks (GSM8K/MATH/GPQA-style)</td></tr>
+          <tr><td>Reasoning traces</td><td class="num">12%</td><td class="num">3.6T</td><td>Deliberately large — the highest-leverage bucket for closing the gap to frontier-level multi-step reasoning</td></tr>
+          <tr><td>Indic languages</td><td class="num">10%</td><td class="num">3.0T</td><td>Meaningful, real weight without letting it dominate a mixture where code/reasoning/English are also explicit priorities</td></tr>
+          <tr><td>Long-context corpus</td><td class="num">8%</td><td class="num">2.4T</td><td>Dedicated budget for the length-extension stage — drawn from, not separate from, the other six buckets</td></tr>
+          <tr><td>Agentic &amp; tool-use</td><td class="num">8%</td><td class="num">2.4T</td><td>Smaller by necessity — genuinely verified agentic trajectories are scarce and expensive to produce; quality over volume here</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- OPTIM -->
+    <section class="block" id="optim">
+      <div class="eyebrow">07 · Loss correction &amp; optimization</div>
+      <h2>Backprop itself needs no "correction" — training stability at this scale does</h2>
+      <p class="intro">Standard backpropagation (reverse-mode autodiff) computes exact gradients; there's no alternative algorithm needed there. What actually needs engineering at 120B-model scale is keeping those gradients well-behaved and recovering cleanly when they aren't:</p>
+      <div class="grid-2">
+        <div class="card"><h3>Optimizer</h3><p>AdamW as the safe default (β1≈0.9, β2≈0.95, weight decay ~0.1). Muon (a newer matrix-aware optimizer) is worth evaluating on a smaller model first — early results show faster convergence on weight matrices specifically, but it's less battle-tested at 100B+ scale.</p></div>
+        <div class="card"><h3>LR schedule</h3><p>Warmup–Stable–Decay (Section 5), not pure cosine — decouples "how long do I train" from "what does my schedule look like," letting you extend the stable phase if more compute becomes available mid-run without redesigning anything.</p></div>
+        <div class="card"><h3>Gradient clipping</h3><p>Global-norm clipping (typically to 1.0) on every step — the single cheapest defense against a bad batch producing a destabilizing gradient.</p></div>
+        <div class="card"><h3>Loss-spike recovery</h3><p>Monitor gradient norm and loss in real time; on a detected spike, roll back to the last stable checkpoint and skip the offending data shard rather than let training continue on a corrupted trajectory (the "rewind and skip" pattern used in PaLM and OPT training).</p></div>
+        <div class="card"><h3>Precision</h3><p>bf16 compute with fp32 master weights and optimizer state (no loss scaling needed, unlike fp16). RMSNorm epsilon and attention logit soft-capping/QK-norm (Section 1) matter here specifically to prevent bf16 overflow in attention.</p></div>
+        <div class="card"><h3>MoE-specific auxiliary loss</h3><p>The bias-based load-balancing correction from Section 1 IS a form of "loss correction" in the literal sense — it's a small auxiliary signal that nudges routing without a large competing loss term.</p></div>
+        <div class="card"><h3>Multi-token prediction loss</h3><p>The MTP auxiliary head (Section 1) adds a second loss term during pretraining, dropped at inference — improves gradient signal density per token processed.</p></div>
+        <div class="card"><h3>Distributed correctness</h3><p>ZeRO-3/FSDP gradient sharding and all-reduce must be bitwise-consistent across ranks — a subtle desync here silently corrupts training without an obvious loss spike, so it's worth its own correctness testing separate from the model architecture.</p></div>
+      </div>
+    </section>
+
+    <!-- INFRA -->
+    <section class="block" id="infra">
+      <div class="eyebrow">08 · Agents &amp; tooling infrastructure</div>
+      <h2>Two different meanings of "agent tooling" here — both are needed</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Infra to BUILD the model</h3>
+          <p>Distributed data processing (Ray/Spark), training orchestration (Megatron-LM / DeepSpeed / PyTorch FSDP2 on Slurm or Kubernetes), experiment tracking (W&amp;B/MLflow), an automated eval harness (lm-eval-harness-style) running the Section 10 benchmark suite continuously against checkpoints, and fault-tolerant checkpointing given that node failures are routine at this cluster scale.</p>
+        </div>
+        <div class="card">
+          <h3>Tool environments to TEACH agentic capability</h3>
+          <p>This is the part your mixture specifically needs and can't skip: a real sandboxed code-execution environment, a mock/real API-calling layer, a calculator/retrieval tool, and a browsing environment — all wired into <em>both</em> SFT data generation (agentic trajectories kept only if they verifiably complete the task) and RL reward computation (Section 8's verified-reward approach from the earlier blueprint). Unverified synthetic agent data is a known way to actively degrade agentic performance, not improve it.</p>
+        </div>
+        <div class="card">
+          <h3>RL / post-training infra</h3>
+          <p>Fast rollout generation (vLLM or SGLang, not the training framework itself) for RL sampling, a GRPO or PPO trainer, and reward-model or verifier serving at rollout scale. This is a separate, significant infrastructure build from pretraining — budget for it as its own project phase.</p>
+        </div>
+        <div class="card">
+          <h3>Data provenance / lineage</h3>
+          <p>Given the earlier discussion on per-shard provenance manifests (source, license, contributor, content hash) — at this scale, that's not optional bookkeeping, it's what lets you debug a downstream eval regression back to a specific data batch.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HARDWARE -->
+    <section class="block" id="hardware">
+      <div class="eyebrow">09 · Hardware requirements</div>
+      <h2>Sized against the 30T-token, 3.6×10²⁴-FLOP budget above</h2>
+      <table class="datasheet">
+        <thead><tr><th>Layer</th><th>Recommendation</th><th>Sizing logic</th></tr></thead>
+        <tbody>
+          <tr><td>Data processing / chunking</td><td>Few-hundred-node CPU cluster (Ray/Spark), object storage (S3-compatible) for raw + intermediate stages</td><td>Cleaning 30T tokens' worth of raw crawl (likely several × more raw volume before filtering) is I/O- and CPU-bound, not GPU-bound — keep it off the GPU cluster entirely</td></tr>
+          <tr><td>Tokenization</td><td>Rust/rayon-parallel BPE (as built earlier), run across the same CPU cluster</td><td>Throughput is implementation- and hardware-dependent; budget it as CPU-core-hours ≈ D ÷ (per-core tokens/sec), and validate on a 1% sample before committing the full run</td></tr>
+          <tr><td>Training compute</td><td>~10,000 H100-class GPUs (8/node, NVLink/NVSwitch intra-node, 400–800 Gbps InfiniBand inter-node)</td><td>At ~450 TFLOP/s sustained per GPU (~45% MFU), the 3.6×10²⁴ FLOP MoE budget completes in ~9 days ideal / ~12 days with realistic overhead</td></tr>
+          <tr><td>Networking</td><td>Low-latency, high-bandwidth InfiniBand fabric — non-negotiable for MoE</td><td>Expert-parallel all-to-all communication is the actual bottleneck for MoE, not compute — under-provisioned networking silently erodes your effective MFU</td></tr>
+          <tr><td>Memory (weights + optimizer)</td><td>~2.16 TB total (120B params × ~18 bytes/param for bf16 weights + gradients + fp32 master + Adam states), sharded via ZeRO-3/FSDP across the cluster</td><td>No single GPU holds the full model — sharding strategy (data/tensor/pipeline/expert parallelism) is a first-class design decision, not an afterthought</td></tr>
+          <tr><td>Storage — raw ingest</td><td>~2–5 PB</td><td>Raw crawl volume before cleaning/dedup typically runs several times the size of the final cleaned corpus</td></tr>
+          <tr><td>Storage — cleaned/deduped text</td><td>~400–500 TB</td><td>Cleaned text corresponding to 30T tokens at ~4–5 bytes/token average across mixed scripts</td></tr>
+          <tr><td>Storage — tokenized shards</td><td>~120 TB</td><td>30T tokens × 4 bytes (uint32 — needed since the ~230K vocab exceeds uint16 range)</td></tr>
+          <tr><td>Storage — checkpoints</td><td>Fast parallel filesystem (Lustre/GPFS); ~2.16 TB per full checkpoint, rolling window of several kept</td><td>Frequent checkpointing is the primary defense against the node failures expected at this cluster scale over a multi-day run</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- BENCHMARK -->
+    <section class="block" id="bench" style="border-bottom:none;">
+      <div class="eyebrow">10 · Benchmark alignment</div>
+      <h2>What "meeting frontier benchmarks" actually requires beyond this document</h2>
+      <p class="intro">Everything above gets you a strong pretrained base model. It does not, by itself, get you to Claude/GPT/Gemini-level benchmark scores — that gap is closed substantially in post-training, which is its own multi-month effort:</p>
+      <table class="datasheet">
+        <thead><tr><th>Target capability</th><th>Evaluation suite</th></tr></thead>
+        <tbody>
+          <tr><td>General reasoning</td><td>MMLU-Pro, GPQA-Diamond</td></tr>
+          <tr><td>Coding</td><td>HumanEval, SWE-bench Verified, LiveCodeBench</td></tr>
+          <tr><td>Math</td><td>MATH, AIME, GSM8K</td></tr>
+          <tr><td>Agentic / tool-use</td><td>Berkeley Function-Calling Leaderboard, AgentBench, GAIA</td></tr>
+          <tr><td>Long-context</td><td>RULER, needle-in-haystack variants at target length</td></tr>
+          <tr><td>Indic languages</td><td>IndicXTREME, MILU, Aya evaluation suite</td></tr>
+        </tbody>
+      </table>
+      <blockquote class="warn"><b>Being direct about this —</b> matching frontier-lab benchmark numbers takes large-scale RLHF/RLAIF, extensive human-preference data collection, iterative red-teaming, and many rounds of targeted post-training against exactly these evals — none of which is a pretraining architecture decision. This document is the foundation that post-training effort builds on, not a substitute for it.</blockquote>
+    </section>
+
+    <footer>120B BLUEPRINT · ARCHITECTURE &amp; TRAINING DESIGN · RECOMMENDATIONS GROUNDED IN PUBLIC RESEARCH, NOT PROPRIETARY LAB DATA</footer>
+  </main>
+</div>
+
+<script>
+  const mixData = [
+    {label:"General web", pct:28, color:"#8892B0"},
+    {label:"Code", pct:20, color:"#E8A33D"},
+    {label:"STEM / math", pct:14, color:"#C1443C"},
+    {label:"Reasoning traces", pct:12, color:"#1F9E96"},
+    {label:"Indic languages", pct:10, color:"#57DED3"},
+    {label:"Long-context corpus", pct:8, color:"#9C6ADE"},
+    {label:"Agentic & tool-use", pct:8, color:"#3A4270"},
+  ];
+  const bar = document.getElementById('mixbar');
+  const legend = document.getElementById('mixlegend');
+  mixData.forEach(d=>{
+    const seg = document.createElement('div');
+    seg.className='seg';
+    seg.style.width = d.pct + '%';
+    seg.style.background = d.color;
+    seg.title = d.label + ' — ' + d.pct + '%';
+    bar.appendChild(seg);
+    const li = document.createElement('div');
+    li.className='li';
+    li.innerHTML = '<span class="sw" style="background:'+d.color+'"></span>' + d.label + ' · ' + d.pct + '%';
+    legend.appendChild(li);
+  });
+
+  const sections = document.querySelectorAll('section.block');
+  const links = document.querySelectorAll('nav.toc a');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        links.forEach(l=>l.style.background='');
+        const active = document.querySelector('nav.toc a[href="#'+e.target.id+'"]');
+        if(active){ active.style.background='var(--panel)'; active.style.color='var(--alabaster)'; }
+      }
+    });
+  }, {rootMargin:"-20% 0px -70% 0px"});
+  sections.forEach(s=>io.observe(s));
+</script>
+</body>
+</html>

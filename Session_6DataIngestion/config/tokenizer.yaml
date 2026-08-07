@@ -1,0 +1,135 @@
+# ==========================================================
+# Training Data Execution System V5
+# Frozen Tokenizer Configuration
+# ==========================================================
+
+version: "v5"
+
+# ----------------------------------------------------------
+# Tokenizer Definition
+# ----------------------------------------------------------
+tokenizer:
+
+  # Human-readable tokenizer name
+  name: "ByteLevelBPETokenizer"
+
+  # Tokenizer implementation
+  implementation: "huggingface-tokenizers"
+
+  # Tokenizer algorithm
+  algorithm: "ByteLevelBPE"
+
+  # Frozen tokenizer artifact
+  tokenizer_file: "tokenizer/frozen_tokenizer.json"
+
+  # SHA256 fingerprint file
+  sha256_file: "tokenizer/tokenizer.sha256"
+
+  # Vocabulary
+  vocab_size: 32000
+
+  min_frequency: 1
+
+  immutable: true
+
+# ----------------------------------------------------------
+# Training (ONLY USED DURING FREEZE)
+# ----------------------------------------------------------
+training:
+
+  input_directory: "./cleaned_data"
+  bootstrap_if_empty: true
+  bootstrap_files:
+
+    - filename: "bootstrap_code.py"
+      text: |
+        code code code code
+        import torch
+        import numpy
+        class Model
+
+    - filename: "bootstrap_text.txt"
+      text: |
+        language model
+        transformer
+        attention
+        dataset
+        pipeline
+
+    - filename: "bootstrap_eval.txt"
+      text: |
+        evaluation
+        validation
+        benchmark
+        accuracy
+
+# ----------------------------------------------------------
+# Normalization
+# ----------------------------------------------------------
+normalization:
+  unicode: "NFC"
+  lowercase: false
+  strip_whitespace: true
+  remove_control_characters: true
+
+# ----------------------------------------------------------
+# Pre-tokenizer
+# ----------------------------------------------------------
+pretokenizer:
+  type: "ByteLevel"
+  add_prefix_space: true
+
+# ----------------------------------------------------------
+# Special Tokens
+# ----------------------------------------------------------
+special_tokens:
+  eos: "<|endoftext|>"
+  pad: "<pad>"
+  unk: "<unk>"
+  bos: "<s>"
+  eos_secondary: "</s>"
+  mask: "<mask>"
+
+# ----------------------------------------------------------
+# Output Format
+# ----------------------------------------------------------
+output:
+  token_dtype: "uint32"
+  binary_endian: "little"
+
+# ----------------------------------------------------------
+# Determinism
+# ----------------------------------------------------------
+determinism:
+  random_seed: 42
+  deterministic: true
+
+# ----------------------------------------------------------
+# Verification
+# ----------------------------------------------------------
+verification:
+  verify_hash: true
+  verify_special_tokens: true
+  fail_on_hash_mismatch: true
+  fail_if_tokenizer_missing: true
+
+# ----------------------------------------------------------
+# Logging
+# ----------------------------------------------------------
+logging:
+  level: "INFO"
+  log_hashes: true
+  write_manifest_metadata: true
+
+# ----------------------------------------------------------
+# Metadata
+# ----------------------------------------------------------
+metadata:
+  project: "Training Data Execution System"
+  release: "V5"
+  author: "OpenAI Phase 1"
+  description: >
+    Immutable tokenizer configuration.
+    Every tokenized shard references the SHA256 fingerprint
+    of frozen_tokenizer.json to guarantee deterministic,
+    reproducible tokenization.

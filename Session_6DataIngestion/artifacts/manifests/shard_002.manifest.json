@@ -1,0 +1,13 @@
+{
+  "byte_order": "big",
+  "byte_size": 4638398,
+  "content_sha256": "233aa25b5a0e70f5ac9da1547729e7bd5bbbbd09cfc2c3a3ba5caf147e7d0d3f",
+  "data_type": "uint16",
+  "eos_token_id": 0,
+  "is_evaluation_data": false,
+  "packing_policy": "greedy_block_diagonal",
+  "shard_id": 2,
+  "timestamp": "2026-08-07T13:54:52.664172+00:00",
+  "tokenizer_hash": "2933020f74bdf35925a2ab437e8e88a5dd5b232be949ed673c4217ab2c3143ac",
+  "total_tokens": 2319199
+}

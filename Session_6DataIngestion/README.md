@@ -47,7 +47,7 @@ On Second run --> 🏁 System Lifecycle Demonstrations Concluded Successfully.
 1. Install dependencies:
    - `pip install tokenizers numpy`
 2. Compile the tokenizer:
-   - `python tokenizer_compiler.py`
+   - `python tokenizer.py`
 3. Run the demonstration pipeline:
    - `python run_demo.py`
 4. Re-run `python run_demo.py` to complete the recovery path after the first-run crash simulation.

@@ -1,0 +1,1 @@
+{"global_step": 1, "offsets": {"code": 5, "text": 3}, "history": [{"step": 1, "offsets": {"code": 5, "text": 3}, "hash": "161a59ecbdc667b539847fde0c3dad230666a80aaca73c1c1980ba3ec2e1c6d4", "loss": 2.415}, {"step": 1, "offsets": {"code": 5, "text": 3}, "hash": "161a59ecbdc667b539847fde0c3dad230666a80aaca73c1c1980ba3ec2e1c6d4", "loss": 2.415}], "is_crashed": false}

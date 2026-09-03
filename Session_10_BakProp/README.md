@@ -3,6 +3,7 @@
 This repository contains a comprehensive technical investigation into the mechanics of Transformer architectures, autograd execution, gradient behavior, and hardware performance metrics.
 
 ---
+## Task 0: 
 
 ## Task 1: Numerical Gradient Verification (Gradient Checking)
 

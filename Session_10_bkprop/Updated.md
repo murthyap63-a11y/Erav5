@@ -3,6 +3,8 @@
 This repository contains a comprehensive technical investigation into the mechanics of Transformer architectures, autograd execution, gradient behavior, and hardware performance metrics.
 
 ---
+## Task 0: Print every tensor shape in the step, as this backpropogation assignment is worked on using assignment 9 code the tensor shapes are same. Total code is included for verification.
+
 
 ## Task 1: Numerical Gradient Verification (Gradient Checking)
 

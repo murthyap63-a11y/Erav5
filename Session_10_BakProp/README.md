@@ -3,7 +3,7 @@
 This repository contains a comprehensive technical investigation into the mechanics of Transformer architectures, autograd execution, gradient behavior, and hardware performance metrics.
 
 ---
-## Task 0: 
+## Task 0: Print every tensor shape in the step, Assignment 10'scode is built as continuation of Assignment 9's Loss code, the tensors are the same and their shapes, can be verified in the code.
 
 ## Task 1: Numerical Gradient Verification (Gradient Checking)
 

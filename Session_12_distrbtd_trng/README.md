@@ -78,3 +78,12 @@ Assuming FP32 precision ($4 \text{ bytes/parameter}$) for a model parameter coun
 2. **Communication Primitives Trade-Off:**
    * **ZeRO-1 / ZeRO-2:** Perform gradient reduction (`All-Reduce` or `Reduce-Scatter`) once per backward pass. Parameter weights remain constant in worker memory.
    * **ZeRO-3:** Trades network bandwidth for memory by performing $2 \times$ `All-Gather` ops per layer (1 forward, 1 backward) alongside gradient `Reduce-Scatter`. This setup scales well when network interconnects (e.g., NVLink) are fast enough to keep up with compute throughput.
+
+### Communication Primitives & Network Mechanics ($N_d = 32$)
+
+While total data volume remains consistent ($\sim 5.29 \text{ GB/step}$) across stages[span_18](start_span)[span_18](end_span), the underlying collective communication primitives change significantly:
+
+* **ZeRO-1 (`All-Reduce`):** Performs a full gradient reduction across all workers[span_19](start_span)[span_19](end_span). Total transfer volume per rank is $2 \times \frac{N_d - 1}{N_d} \times 2\Psi \approx \mathbf{5.291 \text{ GB}}$.
+* **ZeRO-2 (`Reduce-Scatter` + `All-Gather`):** Decouples gradient reduction into a `Reduce-Scatter` pass during backward execution ($2.646 \text{ GB}$)[span_20](start_span)[span_20](end_span) and an `All-Gather` pass following the optimizer step ($2.646 \text{ GB}$)[span_21](start_span)[span_21](end_span). This allows gradient communication to overlap cleanly with backward computation.
+* **ZeRO-3 (Layer-by-Layer `All-Gather`):** Replaces static parameter storage with dynamic layer-by-layer parameter fetching via `All-Gather` during forward and backward loops, trading interconnect bandwidth ($600 \text{ GB/s}$ NVLink)[span_22](start_span)[span_22](end_span) for maximum VRAM efficiency[span_23](start_span)[span_23](end_span).
+* 

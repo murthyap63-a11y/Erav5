@@ -87,3 +87,15 @@ While total data volume remains consistent ($\sim 5.29 \text{ GB/step}$) across 
 * **ZeRO-2 (`Reduce-Scatter` + `All-Gather`):** Decouples gradient reduction into a `Reduce-Scatter` pass during backward execution ($2.646 \text{ GB}$)[span_20](start_span)[span_20](end_span) and an `All-Gather` pass following the optimizer step ($2.646 \text{ GB}$)[span_21](start_span)[span_21](end_span). This allows gradient communication to overlap cleanly with backward computation.
 * **ZeRO-3 (Layer-by-Layer `All-Gather`):** Replaces static parameter storage with dynamic layer-by-layer parameter fetching via `All-Gather` during forward and backward loops, trading interconnect bandwidth ($600 \text{ GB/s}$ NVLink)[span_22](start_span)[span_22](end_span) for maximum VRAM efficiency[span_23](start_span)[span_23](end_span).
 * 
+### Communication Primitives & Network Summary Matrix ($N_d = 32$)
+
+Across 32 virtual process ranks connected via NVLink ($600.0 \text{ GB/s}$ bandwidth)[span_0](start_span)[span_0](end_span), the data volume and collective communication primitives scale as follows for a $1.47\text{B}$ parameter model ($\Psi = 1,466,241,024$)[span_1](start_span)[span_1](end_span):
+
+| Distributed Stage | Primary Collectives | Volume / Rank / Step | Est. Comm Latency (600 GB/s) | Compute Overlap Potential |
+| :--- | :--- | :--- | :--- | :--- |
+| **Standard DDP** | `All-Reduce` | **$5.291 \text{ GB}$**[span_2](start_span)[span_2](end_span) | $\sim 8.82 \text{ ms}$ | Minimal (Blocks until full backward completes) |
+| **ZeRO-1 ($P_{os}$)** | `All-Reduce` | **$5.291 \text{ GB}$**[span_3](start_span)[span_3](end_span) | $\sim 8.82 \text{ ms}$ | Low (Reduces gradients at end of step) |
+| **ZeRO-2 ($P_{os+g}$)** | `Reduce-Scatter` + `All-Gather` | **$5.291 \text{ GB}$**[span_4](start_span)[span_4](end_span) | $\sim 8.82 \text{ ms}$ | **High** (Pipelined during backward pass)[span_5](start_span)[span_5](end_span) |
+| **ZeRO-3 ($P_{pos+g}$)** | $2\times$ `All-Gather` + `Reduce-Scatter` | **$5.291 - 7.938 \text{ GB}$**[span_6](start_span)[span_6](end_span) | $\sim 8.82 - 13.23 \text{ ms}$ | **Maximum** (Prefetches layer $L+1$ parameters) |
+
+---

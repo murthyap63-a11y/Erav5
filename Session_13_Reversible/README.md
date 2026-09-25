@@ -70,7 +70,7 @@ Standard Transformer             | 30.04M    | 7,822.22       | 16,154  | 5.9952
 Euler Reversible Transformer     | 22.06M    | 6,880.42       | 19,096  | 5.9734
 Midpoint Reversible Transformer  | 22.06M    | 7,060.80       | 19,489  | 5.9700
 ==================================================================================
-
+```
 ## Analysis & Observations
 
 ### 1. VRAM Memory Efficiency ($O(1)$ Activation Caching)
